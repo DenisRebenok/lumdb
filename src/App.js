@@ -6,6 +6,7 @@ import logo from './logo.svg';
 import './App.css';
 
 import MoviesList from './MoviesList';
+import MovieDetail from './MovieDetail';
 
 const App = () => (
   <Router>
@@ -17,6 +18,7 @@ const App = () => (
       </header>
       <Switch>
         <Route exact path="/" component={MoviesList} />
+        <Route path="/:id" component={MovieDetail} />
       </Switch>
     </div>
   </Router>
