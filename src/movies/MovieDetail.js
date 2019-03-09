@@ -1,39 +1,35 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import styled from 'styled-components';
 import Overdrive from 'react-overdrive';
 import { Poster } from './Movie';
+import { getMovie, resetMovie } from './actions';
 
 const POSTER_PATH = 'http://image.tmdb.org/t/p/w154';
 const BACKDROP_PATH = 'http://image.tmdb.org/t/p/w1280';
 
 class MovieDetail extends Component {
-  state = {
-    movie: {},
-  };
+  componentDidMount() {
+    const { getMovie, match } = this.props;
+    getMovie(match.params.id);
+  }
 
-  async componentDidMount() {
-    try {
-      const res = await fetch(
-        `https://api.themoviedb.org/3/movie/${
-          this.props.match.params.id
-        }?api_key=dff4354bf3abbf1784130401340e9e6f&language=en-US`,
-      );
-      const movie = await res.json();
-      this.setState({
-        movie,
-      });
-    } catch (err) {
-      console.log(err);
-    }
+  componentWillUnmount() {
+    this.props.resetMovie();
   }
 
   render() {
-    const { movie } = this.state;
+    const { movie } = this.props;
+    if (!movie.id) return null;
     return (
       <MovieWrapper backdrop={`${BACKDROP_PATH}${movie.backdrop_path}`}>
         <MovieInfo>
           <Overdrive id={movie.id}>
-            <Poster src={`${POSTER_PATH}${movie.poster_path}`} alt={movie.title} />
+            <Poster
+              src={`${POSTER_PATH}${movie.poster_path}`}
+              alt={movie.title}
+            />
           </Overdrive>
           <div>
             <h1>{movie.title}</h1>
@@ -46,7 +42,24 @@ class MovieDetail extends Component {
   }
 }
 
-export default MovieDetail;
+const mapStateToProps = ({ movies }) => ({
+  movie: movies.movie,
+  isLoaded: movies.movieLoaded
+});
+
+const mapDispatchToProps = dispatch =>
+  bindActionCreators(
+    {
+      getMovie,
+      resetMovie
+    },
+    dispatch
+  );
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(MovieDetail);
 
 const MovieWrapper = styled.div`
   position: relative;
