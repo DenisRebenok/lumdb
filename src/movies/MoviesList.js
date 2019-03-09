@@ -7,7 +7,10 @@ import { getMovies } from './actions';
 
 class MoviesList extends PureComponent {
   componentDidMount() {
-    !this.props.isLoaded && this.props.getMovies();
+    const { isLoaded, getMovies, moviesLoadedAt } = this.props;
+    const oneHour = 60 * 60 * 1000;
+    const timeToRefresh = new Date() - new Date(moviesLoadedAt) > oneHour;
+    if (!isLoaded || timeToRefresh) getMovies();
   }
 
   render() {
@@ -25,7 +28,8 @@ class MoviesList extends PureComponent {
 
 const mapStateToProps = ({ movies }) => ({
   movies: movies.movies,
-  isLoaded: movies.moviesLoaded
+  isLoaded: movies.moviesLoaded,
+  moviesLoadedAt: movies.moviesLoadedAt
 });
 
 const mapDispatchToProps = dispatch =>
